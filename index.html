@@ -2,76 +2,60 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Media URL Extractor</title>
-
+<title>Video URL List</title>
 <style>
 body{
-font-family:Arial;
-padding:20px;
-background:#111;
-color:white;
+    font-family: Arial;
+    padding:20px;
 }
-
 textarea{
-width:100%;
-height:400px;
-margin-top:20px;
-background:#222;
-color:#0f0;
-padding:10px;
+    width:100%;
+    height:400px;
 }
-
 button{
-padding:10px 20px;
-font-size:16px;
-cursor:pointer;
+    padding:10px 20px;
+    margin-top:10px;
 }
 </style>
-
 </head>
 
 <body>
 
-<h2>Media URL Generator</h2>
+<h2>Video URLs</h2>
 
-<button onclick="loadFiles()">Load URLs</button>
+<button onclick="copyUrls()">Copy All</button>
+
+<br><br>
 
 <textarea id="output"></textarea>
 
 <script>
 
-const owner = "HuuHuy12A2"
-const repo = "videos"
-const branch = "main"
+const username = "YOUR_USERNAME"
+const repo = "YOUR_REPO"
+const folder = "videos"
 
-const folders = "videos assets"
+const api = `https://api.github.com/repos/${username}/${repo}/contents/${folder}`
 
-async function loadFiles(){
+fetch(api)
+.then(res => res.json())
+.then(data => {
 
-let allUrls = []
+    let urls = data
+        .filter(file => file.type === "file")
+        .map(file =>
+        `https://cdn.jsdelivr.net/gh/${username}/${repo}/${folder}/${file.name}`
+        )
 
-for (let folder of folders){
-
-let api =
-`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`
-
-let res = await fetch(api)
-let data = await res.json()
-
-data.forEach(file => {
-
-let url =
-`https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${folder}/${file.name}`
-
-allUrls.push(url)
+    document.getElementById("output").value = urls.join("\n")
 
 })
 
-}
-
-document.getElementById("output").value =
-allUrls.join("\n")
-
+function copyUrls(){
+    const text = document.getElementById("output")
+    text.select()
+    document.execCommand("copy")
+    alert("Copied!")
 }
 
 </script>
